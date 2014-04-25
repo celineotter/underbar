@@ -60,7 +60,7 @@ var _ = {};
     } else if (typeof collection === 'object') {
       // var keys = Object.keys(obj);
       // for (var i=0; i<keys.length; i++) {
-      // iterator(obj[keys[i]], i);
+      // iterator(obj[keys[i]], i, collection);
       for (var prop in collection) {
         iterator(collection[prop], prop, collection);
       }
@@ -88,7 +88,15 @@ var _ = {};
 
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, test) {
+    var resultsArr =[];
+    _.each(collection, function (item, index) {
+      if (test(item, index)) { 
+        resultsArr.push(item)
+      }
+    });
+    return resultsArr;
   };
+  /******************************************************************************/
 
   // Return all elements of an array that don't pass a truth test.
   _.reject = function(collection, test) {
