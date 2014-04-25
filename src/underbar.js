@@ -29,12 +29,14 @@ var _ = {};
    * you proceed. Skipping this step will lead to considerably more difficulty
    * implementing the sections you are responsible for.
    */
+  /******************************************************************************/
 
   // Return an array of the first n elements of an array. If n is undefined,
   // return just the first element.
   _.first = function(array, n) {
     return n === undefined ? array[0] : array.slice(0, n);
   };
+  /******************************************************************************/
 
   // Like first, but for the last elements. If n is undefined, return just the
   // last element.
@@ -42,14 +44,29 @@ var _ = {};
     n===0? n=-array.length:n;
     return n=== undefined ? array[array.length-1] : array.slice(-n, array.length);
   };
+  /******************************************************************************/
 
   // Call iterator(value, key, collection) for each element of collection.
   // Accepts both arrays and objects.
   //
   // Note: _.each does not have a return value, but rather simply runs the
   // iterator function over each item in the input collection.
-  _.each = function(collection, iterator) {
+
+  _.each = function (collection, iterator ) {
+    if (Array.isArray(collection)) {
+      for (var i=0; i<collection.length; i++) {
+        iterator(collection[i], i, collection);
+      }
+    } else if (typeof collection === 'object') {
+      // var keys = Object.keys(obj);
+      // for (var i=0; i<keys.length; i++) {
+      // iterator(obj[keys[i]], i);
+      for (var prop in collection) {
+        iterator(collection[prop], prop, collection);
+      }
+    }
   };
+  /******************************************************************************/
 
   // Returns the index at which value can be found in the array, or -1 if value
   // is not present in the array.
@@ -67,6 +84,7 @@ var _ = {};
 
     return result;
   };
+  /******************************************************************************/
 
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, test) {
