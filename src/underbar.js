@@ -158,7 +158,19 @@ var _ = {};
   // Calls the method named by methodName on each value in the list.
   // Note: you will nead to learn a bit about .apply to complete this.
   _.invoke = function(collection, functionOrKey, args) {
+      return _.map(collection, function (item) {
+        return (typeof functionOrKey === 'function'? functionOrKey : item[functionOrKey])
+        .apply(item, args);
+      });
+    //if (typeof functionOrKey === 'function') {
+    //   return _.map(collection, function (item) {
+    //     return functionOrKey.apply(item, args);
+    //   });
+    // } else { return _.map(collection, function (item) {
+    //     return item[functionOrKey].apply(item, args);
+    //   });
   };
+  /******************************************************************************/
 
   // Reduces an array or object to a single value by repetitively calling
   // iterator(previousValue, item) for each item. previousValue should be
@@ -173,6 +185,7 @@ var _ = {};
   //   var sum = _.reduce(numbers, function(total, number){
   //     return total + number;
   //   }, 0); // should be 6
+
   _.reduce = function(collection, iterator, accumulator) {
   };
 
