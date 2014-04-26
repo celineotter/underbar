@@ -34,6 +34,7 @@ var _ = {};
   // Return an array of the first n elements of an array. If n is undefined,
   // return just the first element.
   _.first = function(array, n) {
+
     return n === undefined ? array[0] : array.slice(0, n);
   };
   /******************************************************************************/
@@ -42,6 +43,7 @@ var _ = {};
   // last element.
   _.last = function(array, n) {
     n===0? n=-array.length:n;
+
     return n=== undefined ? array[array.length-1] : array.slice(-n, array.length);
   };
   /******************************************************************************/
@@ -94,6 +96,7 @@ var _ = {};
         resultsArr.push(item);
       }
     });
+
     return resultsArr;
   };
   /******************************************************************************/
@@ -106,7 +109,7 @@ var _ = {};
     var failTest = function (item) {
       return !(test(item));
     }
-    
+  
     return _.filter(collection, failTest );    
   };
   /******************************************************************************/
@@ -119,6 +122,7 @@ var _ = {};
         resultArr.push(array[i]);
       };
     }
+
     return resultArr;
   };
   /******************************************************************************/
@@ -132,7 +136,8 @@ var _ = {};
     _.each (collection, function (item, index) {
       resultArr.push(iterator(item, index));
     });
-      return resultArr;
+
+    return resultArr;
   };
 
   /*
@@ -171,7 +176,7 @@ var _ = {};
     //   });
   };
   /******************************************************************************/
-
+  /******************************************************************************/
   // Reduces an array or object to a single value by repetitively calling
   // iterator(previousValue, item) for each item. previousValue should be
   // the return value of the previous iterator call.
@@ -187,10 +192,42 @@ var _ = {};
   //   }, 0); // should be 6
 
   _.reduce = function(collection, iterator, accumulator) {
+    var index, isArray = Array.isArray(collection);
+    
+    if (!isArray) {
+      var keys = Object.keys(collection);
+    }
+    accumulator=== undefined? accumulator = (isArray? collection[0]:collection[keys[0]]) : accumulator;
+    accumulator === undefined? index = 1: index=0;
+    var length = isArray? collection.length : keys.length;
+
+    while (index<length) {
+      accumulator = iterator(accumulator, (isArray?collection[index]:collection[keys[index]]), index);
+      index++;
+    }
+    return accumulator;
   };
+/*
+    if (Array.isArray(collection)) {
+      accumulator=== undefined? accumulator =collection[0] : accumulator;
+      var valueFeeder = collection[index];
+      var length = collection.length;
+    } else if (typeof collection === 'object') {
+      var keys = Object.keys(collection);
+      accumulator === undefined? accumulator = collection[keys][0] : accumulator;
+      var valueFeeder = collection[keys[index]];
+      var length = keys.length;
+    }
+    arguments[2] === undefined? index = 1: index=0;
+    while (index<length) {
+      accumulator = iterator(accumulator, valueFeeder, index);
+      index++;       
+    }
+*/
+  /******************************************************************************/
 
   // Determine if the array or object contains a given value (using `===`).
-  _.contains = function(collection, target) {
+  _.contains = function(collection, target) {debugger;
     // TIP: Many iteration problems can be most easily expressed in
     // terms of reduce(). Here's a freebie to demonstrate!
     return _.reduce(collection, function(wasFound, item) {
@@ -205,6 +242,13 @@ var _ = {};
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
+    _.reduce(collection, function(isTrue, item) {
+      if (!isTrue) {
+        return false;
+      }
+      return iterator(item);
+    }, true);
+    return result;
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
@@ -303,8 +347,8 @@ var _ = {};
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
   };
-
-
+/******************************************************************************/
+  
   /**
    * Note: This is the end of the pre-course curriculum. Feel free to continue,
    * but nothing beyond here is required.
