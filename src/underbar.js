@@ -303,7 +303,7 @@ var _ = {};
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
-  _.defaults = function(obj) {debugger;
+  _.defaults = function(obj) {
     var index = 1;
     while (index < arguments.length){
       for (var key in arguments[index]) {
@@ -337,7 +337,7 @@ var _ = {};
     return function() {
       if (!alreadyCalled) {
         // TIP: .apply(this, arguments) is the standard way to pass on all of the
-        // infromation from one function call to another.
+        // information from one function call to another.
         result = func.apply(this, arguments);
         alreadyCalled = true;
       }
@@ -345,6 +345,18 @@ var _ = {};
       return result;
     };
   };
+  /*mine:
+    _.once = function (callback) {
+      var executed = false;
+        
+      return function() { 
+        if (!executed) {
+          executed = true;
+          return callback();
+        }
+      }
+    };
+  */
 
   // Memoize an expensive function by storing its results. You may assume
   // that the function takes only one argument and that it is a primitive.
@@ -353,6 +365,21 @@ var _ = {};
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    var cache = {};
+    
+    return function () {
+      var callbackValue = arguments[0];
+
+      //return cache.hasOwnProperty(callbackValue) ? cache[callbackValue] : cache[callbackValue] = func(callbackValue);
+
+      if (cache[callbackValue]) {
+        return cache[callbackValue];
+      } else {
+        cache[callbackValue] = func(callbackValue);
+        return cache[callbackValue];
+      }
+    };
+
   };
 
   // Delays a function for the given number of milliseconds, and then calls
