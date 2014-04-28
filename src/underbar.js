@@ -241,7 +241,7 @@ var _ = {};
       return item === target;
     }, false);
   };
-
+  /******************************************************************************/
 
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
@@ -259,6 +259,7 @@ var _ = {};
       };
     }, true);
   };
+  /******************************************************************************/
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
@@ -270,7 +271,7 @@ var _ = {};
       return !iterator(item); //every returns true if every single item fails the truth test
     });
   }
-
+  /******************************************************************************/
 
   /**
    * OBJECTS
@@ -300,6 +301,7 @@ var _ = {};
     }
     return obj;
   };
+  /******************************************************************************/
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
@@ -313,7 +315,7 @@ var _ = {};
     }
     return obj;
   };
-
+  /******************************************************************************/
 
   /**
    * FUNCTIONS
@@ -357,6 +359,7 @@ var _ = {};
       }
     };
   */
+  /******************************************************************************/
 
   // Memoize an expensive function by storing its results. You may assume
   // that the function takes only one argument and that it is a primitive.
@@ -370,17 +373,18 @@ var _ = {};
     return function () {
       var callbackValue = arguments[0];
 
-      //return cache.hasOwnProperty(callbackValue) ? cache[callbackValue] : cache[callbackValue] = func(callbackValue);
-
-      if (cache[callbackValue]) {
-        return cache[callbackValue];
-      } else {
-        cache[callbackValue] = func(callbackValue);
-        return cache[callbackValue];
-      }
+      return cache.hasOwnProperty(callbackValue) ? cache[callbackValue] : cache[callbackValue] = func(callbackValue);
     };
-
   };
+  /*  alternative:
+        if (cache[callbackValue]) {
+          return cache[callbackValue];
+        } else {
+          cache[callbackValue] = func(callbackValue);
+          return cache[callbackValue];
+        }
+  */
+  /******************************************************************************/
 
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
@@ -389,10 +393,15 @@ var _ = {};
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var args = Array.prototype.slice.call(arguments, 2);
+    
+    return setTimeout ( function() {
+        return func.apply(this,args);
+      }, wait );
   };
+  /******************************************************************************/
 
-
-  /**
+  /*
    * ADVANCED COLLECTION OPERATIONS
    * ==============================
    */
@@ -402,9 +411,23 @@ var _ = {};
   // TIP: This function's test suite will ask that you not modify the original
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
-  _.shuffle = function(array) {
+  _.shuffle = function(array) {debugger;
+    var shuffArr = [];
+    var arrLength = array.length;
+    var copyArray = array.slice(0, array.length);
+    var runCount = arrLength;
+        
+    while (runCount>0) {
+      var index = Math.floor(Math.random()*arrLength);
+      if (index in copyArray) {
+        shuffArr.push(copyArray[index]);
+        delete copyArray[index];
+        runCount--;
+      }
+    }
+    return shuffArr;
   };
-/******************************************************************************/
+  /******************************************************************************/
   
   /**
    * Note: This is the end of the pre-course curriculum. Feel free to continue,
