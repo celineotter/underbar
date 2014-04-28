@@ -63,8 +63,8 @@ var _ = {};
       // var keys = Object.keys(obj);
       // for (var i=0; i<keys.length; i++) {
       // iterator(obj[keys[i]], i, collection);
-      for (var prop in collection) {
-        iterator(collection[prop], prop, collection);
+      for (var key in collection) {
+        iterator(collection[key], key, collection);
       }
     }
   };
@@ -262,7 +262,7 @@ var _ = {};
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
-  _.some = function(collection, iterator) { debugger;
+  _.some = function(collection, iterator) {
     iterator = iterator || _.identity;
     // TIP: There's a very clever way to re-use every() here.
     
@@ -291,11 +291,27 @@ var _ = {};
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    var index = 1;
+    while (index < arguments.length){
+      for (var key in arguments[index]) {
+        obj[key] = arguments[index][key];
+      }
+      index++;
+    }
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
-  _.defaults = function(obj) {
+  _.defaults = function(obj) {debugger;
+    var index = 1;
+    while (index < arguments.length){
+      for (var key in arguments[index]) {
+        obj.hasOwnProperty(key) ? obj[key] : obj[key] = arguments[index][key];
+      }
+      index++;
+    }
+    return obj;
   };
 
 
