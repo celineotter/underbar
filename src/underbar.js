@@ -106,23 +106,27 @@ var _ = {};
     // TIP: see if you can re-use _.filter() here, without simply
     // copying code in and modifying it
     
-    var failTest = function (item) {
-      return !(test(item));
-    }
-  
-    return _.filter(collection, failTest );    
+  //   var failTest = function (item) {
+  //     return !(test(item));
+  //   }
+  //   return _.filter(collection, failTest );    
+  // };
+
+  //_.reject = function(collection, test) {
+    return _.filter(collection, function(item) {
+        return !test(item)
+      });
   };
   /******************************************************************************/
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array) {
     var resultArr = [];
-    for (var i=0; i<array.length; i++) {
-      if (resultArr.indexOf(array[i]) == -1) {
-        resultArr.push(array[i]);
-      };
-    }
-
+    _.each(array, function (item){ 
+      if(resultArr.indexOf(item) === -1) {
+        resultArr.push(item);
+      }
+    });
     return resultArr;
   };
   /******************************************************************************/
@@ -227,7 +231,7 @@ var _ = {};
   /******************************************************************************/
 
   // Determine if the array or object contains a given value (using `===`).
-  _.contains = function(collection, target) {debugger;
+  _.contains = function(collection, target) {
     // TIP: Many iteration problems can be most easily expressed in
     // terms of reduce(). Here's a freebie to demonstrate!
     return _.reduce(collection, function(wasFound, item) {
@@ -242,20 +246,30 @@ var _ = {};
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
-    _.reduce(collection, function(isTrue, item) {
+    iterator = iterator || _.identity;
+
+    return _.reduce(collection, function(isTrue, item) {
       if (!isTrue) {
         return false;
       }
-      return iterator(item);
+      else if (iterator(item)) {
+        return true;
+      } else {
+        return false;
+      };
     }, true);
-    return result;
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
-  _.some = function(collection, iterator) {
+  _.some = function(collection, iterator) { debugger;
+    iterator = iterator || _.identity;
     // TIP: There's a very clever way to re-use every() here.
-  };
+    
+    return !_.every(collection, function(item) { 
+      return !iterator(item); //every returns true if every single item fails the truth test
+    });
+  }
 
 
   /**
