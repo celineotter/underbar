@@ -485,27 +485,27 @@ var _ = {};
   // _.zip(['a','b','c','d'], [1,2,3]) returns [['a',1], ['b',2], ['c',3], ['d',undefined]]
   _.zip = function() {
     var gpsToZip = arguments[0].length, arrDepth = arguments.length;
-    var resultsArr = new Array(gpsToZip);
+    var resultArr = new Array(gpsToZip);
 
-    _.each(resultsArr, function (item, index) {
-        resultsArr[index] = new Array(arrDepth);
+    _.each(resultArr, function (item, index) {
+        resultArr[index] = new Array(arrDepth);
       });
 
     _.each(arguments, function (item, argumIndex) {
         for (var subItemIndex=0; subItemIndex<arrDepth; subItemIndex++) {
-          resultsArr[subItemIndex][argumIndex] = item[subItemIndex];
+          resultArr[subItemIndex][argumIndex] = item[subItemIndex];
         }
       });
 
-    return resultsArr;
+    return resultArr;
   };
   /* or:
     for (var i=0; i<gpsToZip; i++) {
-      resultsArr[i] = new Array(arrDepth);
+      resultArr[i] = new Array(arrDepth);
     }
     for (var j=0; j<arrDepth ; j++) {
       for (var k=0; k<gpsToZip; k++) {
-        resultsArr[k][j] = arguments[j][k]; // =>which arguments, which index inside
+        resultArr[k][j] = arguments[j][k]; // =>which arguments, which index inside
       }
     }
     */
@@ -515,6 +515,15 @@ var _ = {};
   //
   // Hint: Use Array.isArray to check if something is an array
   _.flatten = function(nestedArray, result) {
+  //_.flatten = function (arr, shallow) {
+    var resultArr = [];
+
+    var recurFunc = function (element) {
+      !Array.isArray(element) ? resultArr.push(element) : _.each(element,recurFunc);
+    };
+    recurFunc(nestedArray);
+
+    return resultArr;
   };
 
   // Takes an arbitrary number of arrays and produces an array that contains
