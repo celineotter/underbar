@@ -411,11 +411,9 @@ var _ = {};
   // TIP: This function's test suite will ask that you not modify the original
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
-  _.shuffle = function(array) {debugger;
-    var shuffArr = [];
-    var arrLength = array.length;
+  _.shuffle = function(array) {
+    var shuffArr = [], arrLength = array.length, runCount = arrLength;
     var copyArray = array.slice(0, array.length);
-    var runCount = arrLength;
         
     while (runCount>0) {
       var index = Math.floor(Math.random()*arrLength);
@@ -439,7 +437,45 @@ var _ = {};
   // If iterator is a string, sort objects by that property with the name
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
-  _.sortBy = function(collection, iterator) {
+  _.sortBy = function(collection, iterator) {debugger;
+    var mapObj = {}; resultArr = [];
+
+    // _.each (collection, function (item, index) {
+    //   mapObj[index] = {target:iterator(item),initial:collection(index)};
+    // });
+    // var arrLength = collecton.length;
+
+    // var keys = Object.keys(mapObj);
+    // var sortKeys = keys.sort(function (a, b) { mapObj.a.target - mapObj.b.target}
+
+    _.each (collection, function (item, index) {
+      mapObj[index] = iterator(item);
+    });
+    
+    var keys = Object.keys(mapObj);
+    var sortKeys = keys.sort(function (a, b) {
+        //return mapObj[a]-mapObj[b];
+        var firstVal = mapArr.a;
+        var secondVal = mapArr.b;
+      });
+    resultArr = _.map(sortKeys, function (item) { return collection[item];});
+    // _.each(sortKeys, function (item) {
+    //   resultArr.push(collection[item]);
+    // });
+    // var dataArray = Object.keys(mapObj).map(function(k){return mapObj[k]});
+    // var sortedArr = dataArray.sort(function (a, b) {
+    //     return a-b;
+    //   });
+    
+    //var sortedArr = Object.keys(mapObj).sort(function (a, b) {
+      //   return a-b;
+      // });
+    // _.each(sortedArr, function (item) {
+    //   resultArr.push(mapObj[item]);
+    // });
+
+    return resultArr;
+
   };
 
   // Zip together two or more arrays with elements of the same index
@@ -448,8 +484,32 @@ var _ = {};
   // Example:
   // _.zip(['a','b','c','d'], [1,2,3]) returns [['a',1], ['b',2], ['c',3], ['d',undefined]]
   _.zip = function() {
-  };
+    var gpsToZip = arguments[0].length, arrDepth = arguments.length;
+    var resultsArr = new Array(gpsToZip);
 
+    _.each(resultsArr, function (item, index) {
+        resultsArr[index] = new Array(arrDepth);
+      });
+
+    _.each(arguments, function (item, argumIndex) {
+        for (var subItemIndex=0; subItemIndex<arrDepth; subItemIndex++) {
+          resultsArr[subItemIndex][argumIndex] = item[subItemIndex];
+        }
+      });
+
+    return resultsArr;
+  };
+  /* or:
+    for (var i=0; i<gpsToZip; i++) {
+      resultsArr[i] = new Array(arrDepth);
+    }
+    for (var j=0; j<arrDepth ; j++) {
+      for (var k=0; k<gpsToZip; k++) {
+        resultsArr[k][j] = arguments[j][k]; // =>which arguments, which index inside
+      }
+    }
+    */
+  
   // Takes a multidimensional array and converts it to a one-dimensional array.
   // The new array should contain all elements of the multidimensional array.
   //
