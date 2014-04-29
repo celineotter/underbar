@@ -533,15 +533,15 @@ var _ = {};
     var resultArr = [], countPropertiesObj = {};
 
     _.each(arguments, function (array) {
-        _.each(array, function (element) {
-          if (countPropertiesObj[element] === (arguments.length-2)) {
-            resultArr.push(element);
-          } else {
-            countPropertiesObj[element] = countPropertiesObj[element] ? +1 : 1;
-          }
-        });
+      _.each(array, function (element) {
+        if (countPropertiesObj[element] === (arguments.length-2)) {
+          resultArr.push(element);
+        } else {
+          countPropertiesObj[element] = countPropertiesObj[element] ? +1 : 1;
+        }
+      });
     });
-    
+
     return resultArr;
   };
   /******************************************************************************/
@@ -549,8 +549,32 @@ var _ = {};
   // Take the difference between one array and a number of other arrays.
   // Only the elements present in just the first array will remain.
   _.difference = function(array) {
-  };
+    var resultArr = [], countPropertiesObj = {}, flat =[];
+    var firstArr = _.flatten(arguments[0]);
+    var compareArgs = Array.prototype.slice.call(arguments, 1);
 
+    _.each(firstArr, function (element) {
+      countPropertiesObj[element] = countPropertiesObj[element] ? +1 : 1;
+    });
+
+    _.each(compareArgs, function (element) {
+      flat = Array.isArray(element) ? _.flatten(element): element;
+      _.each(flat, function (item){
+        if (countPropertiesObj[item]) {
+          countPropertiesObj[item]++;
+        }
+      });
+    });
+
+    for (var key in countPropertiesObj) {
+      if (countPropertiesObj[key] === 1) {
+        resultArr.push(key);
+      }
+    }
+
+    return resultArr;
+  };
+  /******************************************************************************/
 
   /**
    * MEGA EXTRA CREDIT
