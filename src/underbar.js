@@ -431,7 +431,7 @@ var _ = {};
    * Note: This is the end of the pre-course curriculum. Feel free to continue,
    * but nothing beyond here is required.
    */
-
+  /******************************************************************************/
 
   // Sort the object's values by a criterion produced by an iterator.
   // If iterator is a string, sort objects by that property with the name
@@ -475,8 +475,8 @@ var _ = {};
     // });
 
     return resultArr;
-
   };
+  /******************************************************************************/
 
   // Zip together two or more arrays with elements of the same index
   // going together.
@@ -509,13 +509,13 @@ var _ = {};
       }
     }
     */
-  
+    /******************************************************************************/
+
   // Takes a multidimensional array and converts it to a one-dimensional array.
   // The new array should contain all elements of the multidimensional array.
   //
   // Hint: Use Array.isArray to check if something is an array
   _.flatten = function(nestedArray, result) {
-  //_.flatten = function (arr, shallow) {
     var resultArr = [];
 
     var recurFunc = function (element) {
@@ -525,11 +525,26 @@ var _ = {};
 
     return resultArr;
   };
+  /******************************************************************************/
 
   // Takes an arbitrary number of arrays and produces an array that contains
   // every item shared between all the passed-in arrays.
   _.intersection = function() {
+    var resultArr = [], countPropertiesObj = {};
+
+    _.each(arguments, function (array) {
+        _.each(array, function (element) {
+          if (countPropertiesObj[element] === (arguments.length-2)) {
+            resultArr.push(element);
+          } else {
+            countPropertiesObj[element] = countPropertiesObj[element] ? +1 : 1;
+          }
+        });
+    });
+    
+    return resultArr;
   };
+  /******************************************************************************/
 
   // Take the difference between one array and a number of other arrays.
   // Only the elements present in just the first array will remain.
