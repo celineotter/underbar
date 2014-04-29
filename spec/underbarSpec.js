@@ -526,7 +526,6 @@ describe('sortBy', function() {
     people = _.sortBy(people, function(person) {
       return person.age;
     });
-
     expect(_.pluck(people, 'name')).to.eql(['moe', 'curly']);
   });
 
