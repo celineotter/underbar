@@ -122,12 +122,15 @@ var _ = {};
   _.uniq = function (array) {
     var resultArr = [];
 
-    _.each(array, function (item) { 
-      if (resultArr.indexOf(item) === -1) resultArr.push(item);
+    _.each(array, function (item) {
+      if (_.indexOf(resultArr, item) === -1) resultArr.push(item);
     });
 
     return resultArr;
   };
+  /*alternative:
+    if (resultArr.indexOf(item) === -1) resultArr.push(item);
+  */
   /******************************************************************************/
 
   // Return the results of applying an iterator to each element.
@@ -200,7 +203,18 @@ var _ = {};
   //   }, 0); // should be 6
 
   _.reduce = function (collection, iterator, accumulator) {
-    var index, isArray = Array.isArray(collection), length;
+    var isArray = Array.isArray(collection), length;
+
+    accumulator = (accumulator=== undefined ? (isArray ? collection.shift() : {}) : accumulator);
+
+    _.each(collection, function (item) {
+      accumulator = iterator(accumulator, item);
+    });
+
+    return accumulator;
+  };
+  /* alternative: long
+      var index, isArray = Array.isArray(collection), length;
 
     if (!isArray) var keys = Object.keys(collection);
     accumulator = (accumulator=== undefined ? (isArray ? collection[0] : collection[keys[0]]) : accumulator);
@@ -211,26 +225,24 @@ var _ = {};
       accumulator = iterator(accumulator, (isArray ? collection[index] : collection[keys[index]]), index);
       index++;
     }
-
-    return accumulator;
-  };
-/* alternative:
-    if (Array.isArray(collection)) {
-      accumulator=== undefined? accumulator =collection[0] : accumulator;
-      var valueFeeder = collection[index];
-      var length = collection.length;
-    } else if (typeof collection === 'object') {
-      var keys = Object.keys(collection);
-      accumulator === undefined? accumulator = collection[keys][0] : accumulator;
-      var valueFeeder = collection[keys[index]];
-      var length = keys.length;
-    }
-    arguments[2] === undefined? index = 1: index=0;
-    while (index<length) {
-      accumulator = iterator(accumulator, valueFeeder, index);
-      index++;       
-    }
-*/
+  
+    * alternative: v. long
+      if (Array.isArray(collection)) {
+        accumulator=== undefined? accumulator =collection[0] : accumulator;
+        var valueFeeder = collection[index];
+        var length = collection.length;
+      } else if (typeof collection === 'object') {
+        var keys = Object.keys(collection);
+        accumulator === undefined? accumulator = collection[keys][0] : accumulator;
+        var valueFeeder = collection[keys[index]];
+        var length = keys.length;
+      }
+      arguments[2] === undefined? index = 1: index=0;
+      while (index<length) {
+        accumulator = iterator(accumulator, valueFeeder, index);
+        index++;       
+      }
+  */
   /******************************************************************************/
 
   // Determine if the array or object contains a given value (using `===`).
@@ -250,11 +262,12 @@ var _ = {};
   _.every = function (collection, iterator) {
     iterator = iterator || _.identity;
 
-    return _.reduce(collection, function (isTrue, item) {
-      if (!isTrue) return false;
+    return _.reduce(collection, function (isTrue_All, item) {
+      if (!isTrue_All) return false;
       else if (iterator(item)) return true;
       else return false;
     }, true);
+
   };
   /******************************************************************************/
 
@@ -264,10 +277,10 @@ var _ = {};
   _.some = function (collection, iterator) {
     iterator = iterator || _.identity;
     
-    return !_.every(collection, function (item) { 
+    return !_.every(collection, function (item) {
       return !iterator(item); //every returns true if every single item fails the truth test
     });
-  }
+  };
   /******************************************************************************/
 
   /**
@@ -289,6 +302,16 @@ var _ = {};
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function (obj) {
+    var args = Array.prototype.slice.call(arguments, 1);
+
+    return _.reduce(args,function(memo, arg){
+      _.each(arg, function (item, key) {
+        memo[key] = item;
+      });
+      return memo;
+    }, arguments[0]);
+  };
+  /* alternative: 
     var index = 1;
 
     while (index < arguments.length){
@@ -300,11 +323,22 @@ var _ = {};
 
     return obj;
   };
+  */
   /******************************************************************************/
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function (obj) {
+    var args = Array.prototype.slice.call(arguments, 1);
+
+    return _.reduce(args,function(memo, arg){
+      _.each(arg, function (item, key) {
+        memo[key] = (memo.hasOwnProperty(key) ?  memo[key] : item);
+      });
+      return memo;
+    }, arguments[0]);
+  };
+    /* alternative:
     var index = 1;
 
     while (index < arguments.length){
@@ -315,7 +349,7 @@ var _ = {};
     }
 
     return obj;
-  };
+    */
   /******************************************************************************/
 
   /**
@@ -348,18 +382,19 @@ var _ = {};
       // The new function always returns the originally computed result.
       return result;
     };
-  };*/
+  };
 
-  /*mine:*/
+  mine:
+  */
     _.once = function (callback) {
       var executed = false;
         
-      return function() { 
+      return function() {
         if (!executed) {
           executed = true;
           return callback();
         }
-      }
+      };
     };
   /**/
   /******************************************************************************/
@@ -375,7 +410,6 @@ var _ = {};
     
     return function() {
       var callbackValue = arguments[0];
-
       return (cache.hasOwnProperty(callbackValue) ? cache[callbackValue] : cache[callbackValue] = func(callbackValue));
     };
   };
@@ -414,21 +448,36 @@ var _ = {};
   // TIP: This function's test suite will ask that you not modify the original
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
+
   _.shuffle = function (array) {
-    var shuffArr = [], arrLength = array.length, runCount = arrLength;
-    var copyArray = array.slice(0, array.length);
+    var shuffArr = [], arrLength = array.length, runCount = 0;
+    var barredIndexes = [];
         
-    while (runCount>0) {
+    while (runCount<arrLength) {
       var index = Math.floor(Math.random()*arrLength);
-      if (index in copyArray) {
-        shuffArr.push(copyArray[index]);
-        delete copyArray[index];
-        runCount--;
+      if (_.indexOf(barredIndexes, index) === -1) {
+        shuffArr.push(array[index]);
+        barredIndexes.push(index);
+        runCount++;
       }
     }
 
     return shuffArr;
   };
+  /* alternative with _.each:
+    var shuffArr = [], newPosition;
+    var copyArray = array.slice(0, array.length);
+
+    _.each(array, function (item, index) {
+      delete copyArray[index];
+      while  (!newPosition in copyArray && !newPosition in shuffArr) {
+        newPosition = Math.floor(Math.random()*array.length);
+      }
+      shuffArr[newPosition] = item;
+    });
+    return shuffArr;
+    }
+  */
   /******************************************************************************/
   
   /**
@@ -451,42 +500,43 @@ var _ = {};
       }
     });
   };
-    // previous Workthrough;
-    // var mapObj = {}, resultArr = [];
+  /*
+    previous workthrough;
+    var mapObj = {}, resultArr = [];
 
-    // // _.each (collection, function (item, index) {
-    // //   mapObj[index] = {target:iterator(item),initial:collection(index)};
-    // // });
-    // // var arrLength = collecton.length;
-
-    // // var keys = Object.keys(mapObj);
-    // // var sortKeys = keys.sort(function (a, b) { mapObj.a.target - mapObj.b.target}
-
-    // _.each (collection, function (item, index) {
-    //   mapObj[index] = iterator(item);
-    // });
-    // var keys = Object.keys(mapObj);
-    // var sortKeys = keys.sort(function (a, b) {
-    //     return mapObj[a]-mapObj[b];
-    //     // var firstVal = mapObj.a;
-    //     // var secondVal = mapObj.b;
-    //   });
-    // return _.map(sortKeys, function (item) { return collection[item];});
-    // _.each(sortKeys, function (item) {
-    //   resultArr.push(collection[item]);
-    // });
-    // var dataArray = Object.keys(mapObj).map(function(k){return mapObj[k]});
-    // var sortedArr = dataArray.sort(function (a, b) {
-    //     return a-b;
-    //   });
-    
-    //var sortedArr = Object.keys(mapObj).sort(function (a, b) {
-      //   return a-b;
+      // _.each (collection, function (item, index) {
+      //   mapObj[index] = {target:iterator(item),initial:collection(index)};
       // });
-    // _.each(sortedArr, function (item) {
-    //   resultArr.push(mapObj[item]);
-    // });
+      // var arrLength = collecton.length;
 
+      // var keys = Object.keys(mapObj);
+      // var sortKeys = keys.sort(function (a, b) { mapObj.a.target - mapObj.b.target}
+
+    _.each (collection, function (item, index) {
+      mapObj[index] = iterator(item);
+    });
+    var keys = Object.keys(mapObj);
+    var sortKeys = keys.sort(function (a, b) {
+        return mapObj[a]-mapObj[b];
+        // var firstVal = mapObj.a;
+        // var secondVal = mapObj.b;
+      });
+    return _.map(sortKeys, function (item) { return collection[item];});
+    _.each(sortKeys, function (item) {
+      resultArr.push(collection[item]);
+    });
+    var dataArray = Object.keys(mapObj).map(function(k){return mapObj[k]});
+    var sortedArr = dataArray.sort(function (a, b) {
+        return a-b;
+      });
+    
+    var sortedArr = Object.keys(mapObj).sort(function (a, b) {
+        return a-b;
+      });
+    _.each(sortedArr, function (item) {
+      resultArr.push(mapObj[item]);
+    });
+  */
   /******************************************************************************/
 
   // Zip together two or more arrays with elements of the same index
@@ -495,22 +545,28 @@ var _ = {};
   // Example:
   // _.zip(['a','b','c','d'], [1,2,3]) returns [['a',1], ['b',2], ['c',3], ['d',undefined]]
   _.zip = function() {
-    var gpsToZip = arguments[0].length, arrDepth = arguments.length;
-    var resultArr = new Array(gpsToZip);
+    var resultArr = new Array(arguments[0].length), arrDepth = arguments.length;
+    var args = Array.prototype.slice.call(arguments);
 
     _.each(resultArr, function (item, index) {
         resultArr[index] = new Array(arrDepth);
       });
 
-    _.each(arguments, function (item, argumIndex) {
-        for (var subItemIndex=0; subItemIndex<arrDepth; subItemIndex++) {
-          resultArr[subItemIndex][argumIndex] = item[subItemIndex];
-        }
+    return _.map(resultArr, function (arg, argIndex){
+      return _.map(arg, function(subItem, subItemIndex){
+        return args[subItemIndex][argIndex];
       });
-
-    return resultArr;
+    });
   };
-  /* or:
+  /* alternative instead of return above:
+  _.each(arguments, function (item, argumIndex) {
+      for (var subItemIndex=0; subItemIndex<arrDepth; subItemIndex++) {
+        resultArr[subItemIndex][argumIndex] = item[subItemIndex];
+      }
+    });
+    resultArr;
+
+  or:
     for (var i=0; i<gpsToZip; i++) {
       resultArr[i] = new Array(arrDepth);
     }
@@ -519,7 +575,7 @@ var _ = {};
         resultArr[k][j] = arguments[j][k]; // =>which arguments, which index inside
       }
     }
-    */
+  */
     /******************************************************************************/
 
   // Takes a multidimensional array and converts it to a one-dimensional array.
@@ -533,18 +589,39 @@ var _ = {};
       (!Array.isArray(element) ? resultArr.push(element) : _.each(element,recurFunc));
     };
     recurFunc(nestedArray);
-
+    
     return resultArr;
   };
+  /* alternative:
+    var resultArr = [];
+    var recurFunc = function (element) {
+      (!Array.isArray(element) ? resultArr.push(element) : _.each(element,recurFunc));
+    };
+    
+    recurFunc(nestedArray);
+    return resultArr;
+  */
   /******************************************************************************/
 
   // Takes an arbitrary number of arrays and produces an array that contains
   // every item shared between all the passed-in arrays.
   _.intersection = function() {
     var resultArr = [], countPropertiesObj = {};
+    var compareArgs = Array.prototype.slice.call(arguments, 1);
 
+    _.each(arguments[0], function (target) {
+      var check = _.every(compareArgs, function (item) {
+        return _.indexOf(item, target) !==-1? true: false;
+      });
+      if (check === true) resultArr.push(target);
+    });
+
+    return resultArr;
+  };
+  /* Alternative:
     _.each(arguments, function (array) {
       _.each(array, function (element) {
+        // if element is in every args, 
         if (countPropertiesObj[element] === (arguments.length-2)) {
           resultArr.push(element);
         } else {
@@ -552,17 +629,33 @@ var _ = {};
         }
       });
     });
-
     return resultArr;
-  };
+  */
   /******************************************************************************/
 
   // Take the difference between one array and a number of other arrays.
   // Only the elements present in just the first array will remain.
   _.difference = function (array) {
-    var resultArr = [], countPropertiesObj = {}, flat =[];
-    var firstArr = _.flatten(arguments[0]);
+    var resultArr = [], countPropertiesObj = {}, firstArr = _.flatten(arguments[0]);
     var compareArgs = Array.prototype.slice.call(arguments, 1);
+
+    _.each(arguments[0], function (target) {
+      var check = !_.some(compareArgs, function (item) {
+        return _.indexOf(item, target) !==-1? true: false;
+      });
+      if (check === true) resultArr.push(target);
+    });
+
+    return resultArr;
+  };
+    /* alternative:
+    var resultArr = [], countPropertiesObj = {}, flat =[], firstArr = _.flatten(arguments[0]);
+    var compareArgs = Array.prototype.slice.call(arguments, 1);
+
+    _.each(compareArgs, function (element) {
+      flat = Array.isArray(element) ? _.flatten(element) : element;
+      var test = _.every()
+    })
 
     _.each(firstArr, function (element) {
       countPropertiesObj[element] = countPropertiesObj[element] ? +1 : 1;
@@ -582,9 +675,7 @@ var _ = {};
         resultArr.push(key);
       }
     }
-
-    return resultArr;
-  };
+    */
   /******************************************************************************/
 
   /**
